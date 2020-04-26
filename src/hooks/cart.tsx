@@ -18,7 +18,7 @@ interface Product {
 
 interface CartContext {
   products: Product[];
-  addToCart(item: Product): void;
+  addToCart(item: Omit<Product, 'quantity'>): void;
   increment(id: string): void;
   decrement(id: string): void;
 }
@@ -26,6 +26,7 @@ interface CartContext {
 const CartContext = createContext<CartContext | null>(null);
 
 const CartProvider: React.FC = ({ children }) => {
+  const storageKey = '@GoMarketplace:products';
   const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
@@ -36,9 +37,24 @@ const CartProvider: React.FC = ({ children }) => {
     loadProducts();
   }, []);
 
-  const addToCart = useCallback(async product => {
-    // TODO ADD A NEW ITEM TO THE CART
-  }, []);
+  const addToCart = useCallback(
+    async (product: Omit<Product, 'quantity'>) => {
+      const hasProductOnCartIndex = products.findIndex(
+        current => product.id === current.id,
+      );
+
+      const newProductsList = [...products];
+
+      if (hasProductOnCartIndex) {
+        newProductsList[hasProductOnCartIndex].quantity += 1;
+      } else {
+        newProductsList.push({ ...product, quantity: 1 });
+      }
+
+      await AsyncStorage.setItem(storageKey, JSON.stringify(newProductsList));
+    },
+    [products],
+  );
 
   const increment = useCallback(async id => {
     // TODO INCREMENTS A PRODUCT QUANTITY IN THE CART
