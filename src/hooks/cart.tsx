@@ -47,16 +47,14 @@ const CartProvider: React.FC = ({ children }) => {
         current => product.id === current.id,
       );
 
-      const newProductsList = [...products];
-
       if (hasProductOnCartIndex >= 0) {
-        newProductsList[hasProductOnCartIndex].quantity += 1;
+        products[hasProductOnCartIndex].quantity += 1;
       } else {
-        newProductsList.push({ ...product, quantity: 1 });
+        products.push({ ...product, quantity: 1 });
       }
 
-      setProducts(newProductsList);
-      await AsyncStorage.setItem(storageKey, JSON.stringify(newProductsList));
+      setProducts([...products]);
+      await AsyncStorage.setItem(storageKey, JSON.stringify(products));
     },
     [products],
   );
@@ -65,11 +63,10 @@ const CartProvider: React.FC = ({ children }) => {
     async id => {
       const productIndex = products.findIndex(product => product.id === id);
 
-      const newState = [...products];
-      newState[productIndex].quantity += 1;
+      products[productIndex].quantity += 1;
 
-      setProducts(newState);
-      await AsyncStorage.setItem(storageKey, JSON.stringify(newState));
+      setProducts([...products]);
+      await AsyncStorage.setItem(storageKey, JSON.stringify(products));
     },
     [products],
   );
